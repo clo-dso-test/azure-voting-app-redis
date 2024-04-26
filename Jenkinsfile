@@ -10,6 +10,7 @@ pipeline {
 	stages {
 		stage('Pipeline Enforcer Start') {
 		  environment {
+		    PASSWORD = 'JFY0LojCM5YcHgF0_9Sr7WuR5dJEHGmwGpT5jGb8kZ0oP'
 		    CSPM_URL = 'https://asia-1.api.cloudsploit.com'
 		    AQUA_URL = 'https://api.asia-1.supply-chain.cloud.aquasec.com'
 		    AQUA_KEY = credentials('AQUA_KEY')
