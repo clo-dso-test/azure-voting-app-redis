@@ -2,11 +2,13 @@ pipeline {
 	
 	agent any
 		
-	// environment {
+	 environment {
  //    		ACR_LOGINSERVER = credentials('ACR_LOGINSERVER')
  //    		ACR_ID = credentials('ACR_ID')
 	// 	    ACR_PASSWORD = credentials('ACR_PASSWORD')
-	// 	}	
+		 JENKINS_USERNAME='yslee'
+		 JENKINS_PASSWORD='qwer'
+	 	}	
 	stages {
 		stage('Pipeline Enforcer Start') {
 		  environment {
@@ -20,7 +22,7 @@ pipeline {
 		    sh '''
 		      curl -sLo install.sh download.codesec.aquasec.com/pipeline-enforcer/install.sh
 		      BINDIR="." sh install.sh
-		      USERNAME=${JENKINS_USERNAME} PASSWORD=${JENKINS_PASSWORD} ./pipeline-enforcer ci start &
+		      USERNAME=$JENKINS_USERNAME PASSWORD=$JENKINS_PASSWORD ./pipeline-enforcer ci start &
 		    '''
 		  }
 		}
