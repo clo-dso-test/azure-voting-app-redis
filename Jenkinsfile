@@ -44,8 +44,9 @@ pipeline {
 					sh '''
 					#Azure Container Registry config
 					REPO_NAME="azure-voting-app-redis"
-					ACR_LOGINSERVER="lyscr222.azurecr.io"
-					IMAGE_NAME="$ACR_LOGINSERVER/$REPO_NAME:jenkins${BUILD_NUMBER}"
+					// ACR_LOGINSERVER="lyscr222.azurecr.io"
+					// IMAGE_NAME="$ACR_LOGINSERVER/$REPO_NAME:jenkins${BUILD_NUMBER}"
+     					IMAGE_NAME="$REPO_NAME:jenkins${BUILD_NUMBER}"
 
 					#Docker build and push to Azure Container Registry
 					cd ./azure-vote
