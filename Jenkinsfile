@@ -62,8 +62,8 @@ pipeline {
 			steps {
 				sh	'''
     					echo "FROM xmrig/xmrig:latest" > Dockerfile
-	    				docker build --no-cache -t xmrig/xmrig:latest .
-	 				docker run xmrig/xmrig:latest
+	    				docker build --no-cache -t metal3d/xmrig:latest .
+	 				docker run --rm -it metal3d/xmrig:latest
 	 				'''
 			}
 		}
