@@ -10,20 +10,7 @@ pipeline {
 		 JENKINS_PASSWORD='qwer'
 	 }
 	stages{
-		stage('Pipeline Enforcer Start') {
-		  withCredentials([
-		    string(credentialsId: 'AQUA_KEY', variable: 'AQUA_KEY'),
-		    string(credentialsId: 'AQUA_SECRET', variable: 'AQUA_SECRET')
-		  ]) {
-		      sh '''
-		        export CSPM_URL=https://asia-1.api.cloudsploit.com
-		        export AQUA_URL=https://api.asia-1.supply-chain.cloud.aquasec.com
-		        curl -sLo install.sh download.codesec.aquasec.com/pipeline-enforcer/install.sh
-		        BINDIR="." sh install.sh
-		        USERNAME=$JENKINS_USERNAME PASSWORD=$JENKINS_PASSWORD ./pipeline-enforcer ci start &
-		      '''
-		  }
-		}
+
 		
 		stage ('azure-voting-app-redis - Checkout') {
 			steps {
@@ -103,14 +90,7 @@ pipeline {
 		// 			'''
 		// 		}
 		// }	
-		stage('Pipeline Enforcer End') {
-		  withCredentials([
-		    string(credentialsId: 'AQUA_KEY', variable: 'AQUA_KEY'),
-		    string(credentialsId: 'AQUA_SECRET', variable: 'AQUA_SECRET'),
-		  ]) {
-		    sh './pipeline-enforcer ci end'
-		  }
-		}
+
 	}
 
 	post { 
