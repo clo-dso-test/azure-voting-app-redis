@@ -17,7 +17,7 @@ pipeline {
 		    AQUA_KEY = credentials('AQUA_KEY')
 		    AQUA_SECRET = credentials('AQUA_SECRET')
 		  }
-		step{
+		steps{
 		    sh '''
 		      curl -sLo install.sh download.codesec.aquasec.com/pipeline-enforcer/install.sh
 		      BINDIR="." sh install.sh
@@ -109,7 +109,7 @@ pipeline {
 		    AQUA_KEY = credentials('AQUA_KEY')
 		    AQUA_SECRET = credentials('AQUA_SECRET')
 		  }
-		step{
+		steps{
 		    sh './pipeline-enforcer ci end'
 		  }
 		}
