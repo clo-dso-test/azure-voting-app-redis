@@ -8,20 +8,18 @@ pipeline {
 	// 	    ACR_PASSWORD = credentials('ACR_PASSWORD')
 		 JENKINS_USERNAME='yslee'
 		 JENKINS_PASSWORD='qwer'
-	 }
-	stages{
-		stage('Pipeline Enforcer Start') {
-		  environment {
 		    CSPM_URL = 'https://asia-1.api.cloudsploit.com'
 		    AQUA_URL = 'https://api.asia-1.supply-chain.cloud.aquasec.com'
 		    AQUA_KEY = credentials('AQUA_KEY')
 		    AQUA_SECRET = credentials('AQUA_SECRET')
-		  }
+	 }
+	stages{
+		stage('Pipeline Enforcer Start') {
 		steps{
 		    sh '''
 		      curl -sLo install.sh download.codesec.aquasec.com/pipeline-enforcer/install.sh
 		      BINDIR="." sh install.sh
-		      USERNAME=$JENKINS_USERNAME PASSWORD=$JENKINS_PASSWORD ./pipeline-enforcer ci start &
+		      USERNAME=$JENKINS_USERNAME PASSWORD=$JENKINS_PASSWORD ./pipeline-enforcer ci start --aqua-key $AQUA_KEY --aqua-secret $AQUA_SECRET --cspm-url $CSPM_URL &
 		    '''
 		  }
 		}
@@ -105,12 +103,12 @@ pipeline {
 		// 		}
 		// }
 		stage('Pipeline Enforcer End') {
-		  environment {
-		    AQUA_KEY = credentials('AQUA_KEY')
-		    AQUA_SECRET = credentials('AQUA_SECRET')
-		  }
+		  // environment {
+		  //   AQUA_KEY = credentials('AQUA_KEY')
+		  //   AQUA_SECRET = credentials('AQUA_SECRET')
+		  // }
 		steps{
-		    sh './pipeline-enforcer ci end'
+		    sh './pipeline-enforcer ci end --aqua-key $AQUA_KEY --aqua-secret $AQUA_SECRET --cspm-url $CSPM_URL'
 		  }
 		}
 	}
