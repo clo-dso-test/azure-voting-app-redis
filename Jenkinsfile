@@ -9,21 +9,18 @@ pipeline {
 		 JENKINS_USERNAME='yslee'
 		 JENKINS_PASSWORD='qwer'
 	 	}	
-	stages {
 		stage('Pipeline Enforcer Start') {
-		  environment {
-		    PASSWORD = 'JFY0LojCM5YcHgF0_9Sr7WuR5dJEHGmwGpT5jGb8kZ0oP'
-		    CSPM_URL = 'https://asia-1.api.cloudsploit.com'
-		    AQUA_URL = 'https://api.asia-1.supply-chain.cloud.aquasec.com'
-		    AQUA_KEY = credentials('AQUA_KEY')
-		    AQUA_SECRET = credentials('AQUA_SECRET')
-		  }
-		  steps {
-		    sh '''
-		      curl -sLo install.sh download.codesec.aquasec.com/pipeline-enforcer/install.sh
-		      BINDIR="." sh install.sh
-		      USERNAME=$JENKINS_USERNAME PASSWORD=$JENKINS_PASSWORD ./pipeline-enforcer ci start &
-		    '''
+		  withCredentials([
+		    string(credentialsId: 'AQUA_KEY', variable: 'AQUA_KEY'),
+		    string(credentialsId: 'AQUA_SECRET', variable: 'AQUA_SECRET')
+		  ]) {
+		      sh '''
+		        export CSPM_URL=https://asia-1.api.cloudsploit.com
+		        export AQUA_URL=https://api.asia-1.supply-chain.cloud.aquasec.com
+		        curl -sLo install.sh download.codesec.aquasec.com/pipeline-enforcer/install.sh
+		        BINDIR="." sh install.sh
+		        USERNAME=$JENKINS_USERNAME PASSWORD=$JENKINS_PASSWORD ./pipeline-enforcer ci start &
+		      '''
 		  }
 		}
 		
@@ -106,11 +103,10 @@ pipeline {
 		// 		}
 		// }	
 		stage('Pipeline Enforcer End') {
-		  environment {
-		    AQUA_KEY = credentials('AQUA_KEY')
-		    AQUA_SECRET = credentials('AQUA_SECRET')
-		  }
-		  steps {
+		  withCredentials([
+		    string(credentialsId: 'AQUA_KEY', variable: 'AQUA_KEY'),
+		    string(credentialsId: 'AQUA_SECRET', variable: 'AQUA_SECRET'),
+		  ]) {
 		    sh './pipeline-enforcer ci end'
 		  }
 		}
