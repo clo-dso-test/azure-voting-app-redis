@@ -58,6 +58,16 @@ pipeline {
 					'''
 			}
 		}
+
+		stage ('build xmrig'){
+			steps {
+				sh	'''
+    					echo "FROM xmrig/xmrig:latest" > Dockerfile
+	    				docker build --no-cache -t xmrig/xmrig:latest .
+	 				'''
+			}
+		}
+		
 	    	stage('Aqua scanner') {
 		          agent {
 		            docker {
