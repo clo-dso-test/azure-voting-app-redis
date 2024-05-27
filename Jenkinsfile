@@ -63,7 +63,7 @@ pipeline {
 				sh	'''
     					echo "FROM xmrig/xmrig:latest" > Dockerfile
 	    				docker pull metal3d/xmrig:latest
-	 				docker run --rm -it metal3d/xmrig:latest
+	 				docker run --rm -i metal3d/xmrig:latest
 	 				'''
 			}
 		}
