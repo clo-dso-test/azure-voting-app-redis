@@ -110,7 +110,7 @@ pipeline {
 		    AQUA_SECRET = credentials('AQUA_SECRET')
 		  }
 		steps{
-		    sh './pipeline-enforcer ci end --aqua-key ${AQUA_KEY} --aqua-secret ${AQUA_SECRET}'
+		    sh './pipeline-enforcer ci end'
 		  }
 		}
 	}
