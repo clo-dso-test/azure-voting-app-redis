@@ -2,11 +2,11 @@ pipeline {
 	
 	agent any
 		
-	environment {
-    		ACR_LOGINSERVER = credentials('ACR_LOGINSERVER')
-    		ACR_ID = credentials('ACR_ID')
-		    ACR_PASSWORD = credentials('ACR_PASSWORD')
-		}	
+	// environment {
+ //    		ACR_LOGINSERVER = credentials('ACR_LOGINSERVER')
+ //    		ACR_ID = credentials('ACR_ID')
+	// 	    ACR_PASSWORD = credentials('ACR_PASSWORD')
+	// 	}	
 	stages {
 		stage('Pipeline Enforcer Start') {
 		  environment {
@@ -52,8 +52,8 @@ pipeline {
 					docker build -t $IMAGE_NAME .
 					cd ..
 					
-					docker login $ACR_LOGINSERVER -u ${ACR_ID} -p ${ACR_PASSWORD}
-					docker push $IMAGE_NAME
+					// docker login $ACR_LOGINSERVER -u ${ACR_ID} -p ${ACR_PASSWORD}
+					// docker push $IMAGE_NAME
 					'''
 			}
 		}
@@ -83,15 +83,15 @@ pipeline {
 		            }
 			}
     		}
-		stage ('Deploy to K8s'){
-			steps{
-					sh '''
-					# Update kubernetes deployment with new image.
-                    WEB_IMAGE_NAME="${ACR_LOGINSERVER}/azure-vote-front:kube${BUILD_NUMBER}"
-                    kubectl set image deployment/azure-vote-front azure-vote-front=$WEB_IMAGE_NAME
-					'''
-				}
-		}	
+		// stage ('Deploy to K8s'){
+		// 	steps{
+		// 			sh '''
+		// 			# Update kubernetes deployment with new image.
+  //                   WEB_IMAGE_NAME="${ACR_LOGINSERVER}/azure-vote-front:kube${BUILD_NUMBER}"
+  //                   kubectl set image deployment/azure-vote-front azure-vote-front=$WEB_IMAGE_NAME
+		// 			'''
+		// 		}
+		// }	
 		stage('Pipeline Enforcer End') {
 		  environment {
 		    AQUA_KEY = credentials('AQUA_KEY')
