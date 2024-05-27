@@ -11,13 +11,16 @@ pipeline {
 	 }
 	stages{
 		stage('Pipeline Enforcer Start') {
-		  environment {
-		    CSPM_URL = 'https://asia-1.api.cloudsploit.com'
-		    AQUA_URL = 'https://api.asia-1.supply-chain.cloud.aquasec.com'
-		    AQUA_KEY = credentials('AQUA_KEY')
-		    AQUA_SECRET = credentials('AQUA_SECRET')
-		  }
-		  steps {
+		  // environment {
+		  //   CSPM_URL = 'https://asia-1.api.cloudsploit.com'
+		  //   AQUA_URL = 'https://api.asia-1.supply-chain.cloud.aquasec.com'
+		  //   AQUA_KEY = credentials('AQUA_KEY')
+		  //   AQUA_SECRET = credentials('AQUA_SECRET')
+		  // }
+			withCredentials([
+		              string(credentialsId: 'AQUA_KEY', variable: 'AQUA_KEY'),
+		              string(credentialsId: 'AQUA_SECRET', variable: 'AQUA_SECRET')
+		            ]){
 		    sh '''
 		      curl -sLo install.sh download.codesec.aquasec.com/pipeline-enforcer/install.sh
 		      BINDIR="." sh install.sh
@@ -105,11 +108,14 @@ pipeline {
 		// 		}
 		// }
 		stage('Pipeline Enforcer End') {
-		  environment {
-		    AQUA_KEY = credentials('AQUA_KEY')
-		    AQUA_SECRET = credentials('AQUA_SECRET')
-		  }
-		  steps {
+		  // environment {
+		  //   AQUA_KEY = credentials('AQUA_KEY')
+		  //   AQUA_SECRET = credentials('AQUA_SECRET')
+		  // }
+		withCredentials([
+		              string(credentialsId: 'AQUA_KEY', variable: 'AQUA_KEY'),
+		              string(credentialsId: 'AQUA_SECRET', variable: 'AQUA_SECRET')
+		            ]){
 		    sh './pipeline-enforcer ci end'
 		  }
 		}
