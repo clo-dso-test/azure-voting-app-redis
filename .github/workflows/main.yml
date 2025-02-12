@@ -7,40 +7,41 @@ on:
       - ".github/workflows/**"
 
 jobs:
-  # 1. 빌드 및 보안 검사
-  build-and-security-scan:
+  build-deploy:
     runs-on: ubuntu-latest
     env:
       BUILD_PATH: "azure-vote/"
       IMAGE_NAME: "azure-vote-front"
       REGISTRY: "${{ secrets.registry }}.azurecr.io"
       POLICY: "Default secrets policy"
-    outputs:
-      sha: ${{ github.sha }}  # GitHub SHA를 output으로 설정
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
 
+      # Azure 로그인
       - name: Azure login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # ACR 로그인
       - name: Login to ACR
         run: az acr login --name ${{ secrets.registry }}
 
+      # Docker 이미지 빌드
       - name: Build Docker image
         run: |
           cd $BUILD_PATH
           docker build . -t $REGISTRY/$IMAGE_NAME:${{ github.sha }}
           docker tag $REGISTRY/$IMAGE_NAME:${{ github.sha }} $REGISTRY/$IMAGE_NAME:latest
 
+      # Docker 이미지 ACR에 푸시
       - name: Push Docker image to ACR
         run: |
           docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
           docker push $REGISTRY/$IMAGE_NAME:latest
 
-      # Wiz 보안 검사
+      # Wiz CLI 보안 검사
       - name: Download Wiz CLI
         run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
 
@@ -56,19 +57,7 @@ jobs:
       - name: Fetch digest of Docker image for Graph enrichment
         run: ./wizcli docker tag --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}"
 
-  # 2. 배포
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-security-scan  # 빌드 및 보안 검사 완료 후 실행
-    env:
-      IMAGE_NAME: "azure-vote-front"
-      REGISTRY: "${{ secrets.registry }}.azurecr.io"
-    steps:
-      - name: Azure login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
+      # AKS 배포
       - name: kubelogin
         uses: azure/use-kubelogin@v1
         with:
@@ -90,6 +79,6 @@ jobs:
         with:
           namespace: 'default'
           manifests: |
-            azure-vote/azure-vote-all-in-one-redis.yaml
-          images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ needs.build-and-security-scan.outputs.sha }}'
+            azure-vote-all-in-one-redis.yaml
+          images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
           pull-images: false
