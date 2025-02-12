@@ -54,7 +54,7 @@ jobs:
         run: ./wizcli docker scan --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}" --policy "$POLICY"
 
       - name: Fetch digest of Docker image for Graph enrichment
-        run: ./wizcli docker tag --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }},$REGISTRY/$IMAGE_NAME:latest"
+        run: ./wizcli docker tag --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}"
 
   # 2. 배포
   deploy:
