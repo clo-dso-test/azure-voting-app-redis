@@ -1,77 +1,100 @@
 name: build_deploy_aks
+
 on:
   push:
     paths:
       - "azure-vote/**"
       - ".github/workflows/**"
+
 jobs:
+  # 1. 빌드
   build:
     runs-on: ubuntu-latest
     env:
-      SCAN_PATH: "." # Set the relative path in the repo to build the image from
       BUILD_PATH: "azure-vote/"
-      POLICY: "Default secrets policy" # Set the desired Wiz CLI policy to use
-      TAG: "azure-vote-front"
+      IMAGE_NAME: "azure-vote-front"
+      REGISTRY: "${{ secrets.registry }}.azurecr.io"
     steps:
       - name: Checkout source code 
         uses: actions/checkout@v3
-      - name: Build the Docker image
-        run: cd $BUILD_PATH && docker build . --tag $TAG # Configure to fit the params you use to build your image
 
-      # Wiz
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login to ACR
+        run: az acr login --name ${{ secrets.registry }}
+
+      - name: Build Docker image
+        run: |
+          cd $BUILD_PATH
+          docker build . -t $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+          docker tag $REGISTRY/$IMAGE_NAME:${{ github.sha }} $REGISTRY/$IMAGE_NAME:latest
+
+      - name: Push Docker image to ACR
+        run: |
+          docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+          docker push $REGISTRY/$IMAGE_NAME:latest
+
+  # 2. 보안 검사
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: build  # build 완료 후 실행
+    env:
+      POLICY: "Default secrets policy"
+      IMAGE_NAME: "azure-vote-front"
+      REGISTRY: "${{ secrets.registry }}.azurecr.io"
+    steps:
       - name: Download Wiz CLI
         run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
+
       - name: Authenticate to Wiz
         run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
         env:
           WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
-      - name: Run wiz-cli docker image scan
-        run: ./wizcli docker scan --image $TAG --policy "$POLICY"
-      - name: Fetch digest of Docker image for Graph enrichment
-        run: ./wizcli docker tag --image '$TAG:latest'
 
-      # 원격 빌드
-      - name: ACR build
-        id: build-push-acr
-        uses: azure/acr-build@v1
-        with:
-          service_principal: ${{ secrets.service_principal }}
-          service_principal_password: ${{ secrets.service_principal_password }}
-          tenant: ${{ secrets.tenant }}
-          registry: ${{ secrets.registry }}
-          repository: ${{ secrets.repository }}
-          image:  azure-vote-front
-          folder: azure-vote
-          branch: master
-          tag: ${{ github.sha }}
-          
+      - name: Run wiz-cli docker image scan
+        run: ./wizcli docker scan --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}" --policy "$POLICY"
+
+      - name: Fetch digest of Docker image for Graph enrichment
+        run: ./wizcli docker tag --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}"
+
+  # 3. 배포
+  deploy:
+    runs-on: ubuntu-latest
+    needs: security-scan  # security-scan 완료 후 실행
+    env:
+      IMAGE_NAME: "azure-vote-front"
+      REGISTRY: "${{ secrets.registry }}.azurecr.io"
+    steps:
       - name: Azure login
-        id: login
-        uses: azure/login@v1.4.3
+        uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name : kubelogin
+
+      - name: kubelogin
         uses: azure/use-kubelogin@v1
         with:
           kubelogin-version: 'v0.0.24'
+
       - name: Set AKS context
-        id: set-context
         uses: azure/aks-set-context@v3
         with:
           resource-group: '${{ secrets.resource_group }}' 
           cluster-name: '${{ secrets.cluster_name }}'
           admin: 'false'
           use-kubelogin: 'true'
+
       - name: Setup kubectl
-        id: install-kubectl
         uses: azure/setup-kubectl@v3
+
       - name: Deploy to AKS
-        id: deploy-aks
         uses: Azure/k8s-deploy@v4
         with:
           namespace: 'default'
           manifests: |
-             azure-vote-all-in-one-redis.yaml
+            azure-vote-all-in-one-redis.yaml
           images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
           pull-images: false
