@@ -90,6 +90,6 @@ jobs:
         with:
           namespace: 'default'
           manifests: |
-            azure-vote-all-in-one-redis.yaml
+            azure-vote/azure-vote-all-in-one-redis.yaml
           images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ needs.build-and-security-scan.outputs.sha }}'
           pull-images: false
