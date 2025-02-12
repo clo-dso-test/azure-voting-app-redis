@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - "azure-vote/**"
+      - "azure-vote/azure-vote/**"
       - ".github/workflows/**"
 
 jobs:
