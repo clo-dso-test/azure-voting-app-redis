@@ -32,10 +32,10 @@ jobs:
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
   
       - name: Run wiz-cli docker image scan
-        run: ./wizcli docker scan --image ${{ github.sha }}
+        run: ./wizcli docker scan --image '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
         
       # - name: Fetch digest of Docker image for Graph enrichment
-      #   run: ./wizcli docker tag --image ${{ github.sha }}
+      #   run: ./wizcli docker tag --image '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
       - name: Azure login
         id: login
         uses: azure/login@v1.4.3
