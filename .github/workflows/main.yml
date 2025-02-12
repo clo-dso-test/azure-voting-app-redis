@@ -28,19 +28,21 @@ jobs:
         uses: azure/login@v1.4.3
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name : kubelogin
+        uses: azure/use-kubelogin@v1
+        with:
+          kubelogin-version: 'v0.0.24'
       - name: Set AKS context
         id: set-context
         uses: azure/aks-set-context@v3
         with:
           resource-group: '${{ secrets.resource_group }}' 
           cluster-name: '${{ secrets.cluster_name }}'
+          admin: 'false'
+          use-kubelogin: 'true'
       - name: Setup kubectl
         id: install-kubectl
         uses: azure/setup-kubectl@v3
-      - name : kubelogin
-        uses: azure/use-kubelogin@v1
-        with:
-          kubelogin-version: 'v0.0.24'
       - name: Deploy to AKS
         id: deploy-aks
         uses: Azure/k8s-deploy@v4
