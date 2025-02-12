@@ -36,6 +36,10 @@ jobs:
       - name: Setup kubectl
         id: install-kubectl
         uses: azure/setup-kubectl@v3
+      - name : kubelogin
+        uses: azure/use-kubelogin@v1
+        with:
+          kubelogin-version: 'v0.0.24'
       - name: Deploy to AKS
         id: deploy-aks
         uses: Azure/k8s-deploy@v4
