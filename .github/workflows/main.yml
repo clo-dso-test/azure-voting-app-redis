@@ -3,7 +3,7 @@ on:
   push:
     paths:
       - "azure-vote/**"
-      - "/**"
+      - ".github/workflows/**"
 jobs:
   build:
     runs-on: ubuntu-latest
