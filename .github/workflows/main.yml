@@ -29,7 +29,7 @@ jobs:
       - name: Run wiz-cli docker image scan
         run: ./wizcli docker scan --image $TAG --policy "$POLICY"
       - name: Fetch digest of Docker image for Graph enrichment
-        run: ./wizcli docker tag --image '$TAG:${{ github.sha }}'
+        run: ./wizcli docker tag --image $TAG:latest
 
       # 원격 빌드
       - name: ACR build
