@@ -7,9 +7,30 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SCAN_PATH: "." # Set the relative path in the repo to build the image from
+      POLICY: "Default vulnerabilities policy" # Set the desired Wiz CLI policy to use
+      TAG: "azure-vote-front"
     steps:
       - name: Checkout source code 
         uses: actions/checkout@v3
+      - name: Build the Docker image
+        run: cd $SCAN_PATH && docker build . --tag $TAG # Configure to fit the params you use to build your image
+
+      # Wiz
+      - name: Download Wiz CLI
+        run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
+      - name: Authenticate to Wiz
+        run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
+        env:
+          WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
+          WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
+      - name: Run wiz-cli docker image scan
+        run: ./wizcli docker scan --image $TAG
+      # - name: Fetch digest of Docker image for Graph enrichment
+      #   run: ./wizcli docker tag --image $TAG
+
+      # 원격 빌드
       - name: ACR build
         id: build-push-acr
         uses: azure/acr-build@v1
@@ -23,19 +44,7 @@ jobs:
           folder: azure-vote
           branch: master
           tag: ${{ github.sha }}
-      - name: Download Wiz CLI
-        run: curl -o wizcli https://downloads.wiz.io/wizcli/latest/wizcli-linux-amd64 && chmod +x wizcli
-      - name: Authenticate to Wiz
-        run: ./wizcli auth --id "$WIZ_CLIENT_ID" --secret "$WIZ_CLIENT_SECRET"
-        env:
-          WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
-          WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
-  
-      - name: Run wiz-cli docker image scan
-        run: ./wizcli docker scan --image '${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
-        
-      # - name: Fetch digest of Docker image for Graph enrichment
-      #   run: ./wizcli docker tag --image '${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
+          
       - name: Azure login
         id: login
         uses: azure/login@v1.4.3
