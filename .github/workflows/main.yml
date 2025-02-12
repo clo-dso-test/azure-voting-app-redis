@@ -10,7 +10,7 @@ jobs:
     env:
       SCAN_PATH: "." # Set the relative path in the repo to build the image from
       BUILD_PATH: "azure-vote/"
-      POLICY: "Default vulnerabilities policy" # Set the desired Wiz CLI policy to use
+      POLICY: "Default secrets policy" # Set the desired Wiz CLI policy to use
       TAG: "azure-vote-front"
     steps:
       - name: Checkout source code 
@@ -27,9 +27,9 @@ jobs:
           WIZ_CLIENT_ID: ${{ secrets.WIZ_CLIENT_ID }}
           WIZ_CLIENT_SECRET: ${{ secrets.WIZ_CLIENT_SECRET }}
       - name: Run wiz-cli docker image scan
-        run: ./wizcli docker scan --image $TAG
-      # - name: Fetch digest of Docker image for Graph enrichment
-      #   run: ./wizcli docker tag --image $TAG
+        run: ./wizcli docker scan --image $TAG --policy "$POLICY"
+      - name: Fetch digest of Docker image for Graph enrichment
+        run: ./wizcli docker tag --image $TAG
 
       # 원격 빌드
       - name: ACR build
