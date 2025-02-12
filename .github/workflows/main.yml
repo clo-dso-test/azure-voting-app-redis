@@ -15,6 +15,8 @@ jobs:
       IMAGE_NAME: "azure-vote-front"
       REGISTRY: "${{ secrets.registry }}.azurecr.io"
       POLICY: "Default secrets policy"
+    outputs:
+      sha: ${{ github.sha }}  # GitHub SHA를 output으로 설정
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -52,12 +54,15 @@ jobs:
         run: ./wizcli docker scan --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}" --policy "$POLICY"
 
       - name: Fetch digest of Docker image for Graph enrichment
-        run: ./wizcli docker tag --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}"
+        run: ./wizcli docker tag --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }},$REGISTRY/$IMAGE_NAME:latest"
 
   # 2. 배포
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-security-scan  # 빌드 및 보안 검사 완료 후 실행
+    env:
+      IMAGE_NAME: "azure-vote-front"
+      REGISTRY: "${{ secrets.registry }}.azurecr.io"
     steps:
       - name: Azure login
         uses: azure/login@v1
@@ -86,5 +91,5 @@ jobs:
           namespace: 'default'
           manifests: |
             azure-vote-all-in-one-redis.yaml
-          images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ github.sha }}'
+          images: '${{ secrets.registry }}.azurecr.io/${{ secrets.repository }}/azure-vote-front:${{ needs.build-and-security-scan.outputs.sha }}'
           pull-images: false
