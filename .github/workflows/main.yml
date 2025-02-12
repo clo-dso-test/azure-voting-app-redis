@@ -9,13 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SCAN_PATH: "." # Set the relative path in the repo to build the image from
+      BUILD_PATH: "azure-vote/"
       POLICY: "Default vulnerabilities policy" # Set the desired Wiz CLI policy to use
       TAG: "azure-vote-front"
     steps:
       - name: Checkout source code 
         uses: actions/checkout@v3
       - name: Build the Docker image
-        run: cd $SCAN_PATH && docker build . --tag $TAG # Configure to fit the params you use to build your image
+        run: cd $BUILD_PATH && docker build . --tag $TAG # Configure to fit the params you use to build your image
 
       # Wiz
       - name: Download Wiz CLI
