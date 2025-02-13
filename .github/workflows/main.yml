@@ -5,7 +5,6 @@ on:
     paths:
       - "azure-vote/**"
       - "azure-vote/azure-vote/**"
-      - ".github/workflows/**"
 
 jobs:
   build-deploy:
@@ -55,8 +54,8 @@ jobs:
       - name: Run wiz-cli docker image scan
         run: ./wizcli docker scan --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}" --policy "$POLICY"
 
-      # - name: Fetch digest of Docker image for Graph enrichment
-      #   run: ./wizcli docker tag --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}"
+      - name: Fetch digest of Docker image for Graph enrichment
+        run: ./wizcli docker tag --image "$REGISTRY/$IMAGE_NAME:${{ github.sha }}"
 
       # AKS 배포
       - name: kubelogin
